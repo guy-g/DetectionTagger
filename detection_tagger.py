@@ -44,6 +44,7 @@ class Data:
 
 	def clear(self, image_path):
 		self.__actions = self.__actions[:self.__actions_pointer + 1] + [('clear', self.__images_to_boxes[image_path])]
+		self.__images_to_boxes[image_path] = []
 
 	def __do(self, image_path, undo=True, redo=False):
 		assert (undo and not redo) or (not undo and redo)
