@@ -164,7 +164,7 @@ def open_image(image_path, labels, current_class, class_color):
 	image = cv2.resize(image, (dst_width, dst_height), interpolation=cv2.INTER_AREA)
 	for bounding_box in labels[current_class].get_boxes(image_path):
 		scaled_bouding_box = labels[current_class].scale_bouding_box(image_path, bounding_box)
-		cv2.rectangle(image, (scaled_bouding_box[0], scaled_bouding_box[1]), (scaled_bouding_box[2], scaled_bouding_box[3]), class_color, 1, 8)
+		cv2.rectangle(image, (scaled_bouding_box[0], scaled_bouding_box[1]), (scaled_bouding_box[2], scaled_bouding_box[3]), class_color, 3, 8)
 	cv2.imshow(window_name, image)
 	cv2.setWindowTitle(window_name, window_name + ' Current Class : ' + current_class)
 	return image
@@ -197,7 +197,7 @@ def drawBoundingBox(action, x, y, flags, *userdata):
 	elif action == cv2.EVENT_MOUSEMOVE and mouse_down:
 		bottom_right = (x, y)
 		image = open_image(image_path, labels, current_class, class_color)
-		cv2.rectangle(image, top_left, bottom_right, class_color, 1, 8)
+		cv2.rectangle(image, top_left, bottom_right, class_color, 3, 8)
 		cv2.imshow(window_name, image)
 
 
@@ -240,7 +240,7 @@ def tag_folder(folder_path, classes, max_height=950, max_width=1750):
 		elif q == 13:
 			done_images[image_paths[image_idx]] = 1
 			save_tags(image_paths[image_idx], labels, done_images)
-			if sum(done.values()) == len(image_paths):
+			if sum(done_images.values()) == len(image_paths):
 				break
 			done = [done_images[p] for p in image_paths]
 			min_idx_to_show = done.index(0)
