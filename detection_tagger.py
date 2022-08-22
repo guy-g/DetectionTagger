@@ -7,8 +7,8 @@ import argparse
 import distinctipy
 
 
-top_left = ()
-bottom_right = ()
+top_left = None
+bottom_right = None
 mouse_down = False
 window_name = '| Detection Tagger |'
 
