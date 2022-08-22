@@ -156,25 +156,28 @@ def save_tags(image_path, labels, done_images=None):
 		json.dump({c: labels[c].get_boxes(image_path) for c in labels.keys()}, imf)
 
 
-def open_image(image_path, labels, current_class, class_color):
+def open_image(image_path, labels, classes, classes_colors, current_class, class_color):
 	image = cv2.imread(image_path)
 	cv2.namedWindow(window_name, cv2.WINDOW_FULLSCREEN)
 	cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)  
 	(dst_height, dst_width) = labels[current_class].get_resize(image_path)
 	image = cv2.resize(image, (dst_width, dst_height), interpolation=cv2.INTER_AREA)
-	for bounding_box in labels[current_class].get_boxes(image_path):
-		scaled_bouding_box = labels[current_class].scale_bouding_box(image_path, bounding_box)
-		cv2.rectangle(image, (scaled_bouding_box[0], scaled_bouding_box[1]), (scaled_bouding_box[2], scaled_bouding_box[3]), class_color, 3, 8)
+	for c_idx, c in enumerate(classes):
+		for bounding_box in labels[c].get_boxes(image_path):
+			scaled_bouding_box = labels[c].scale_bouding_box(image_path, bounding_box)
+			cv2.rectangle(image, (scaled_bouding_box[0], scaled_bouding_box[1]), (scaled_bouding_box[2], scaled_bouding_box[3]), classes_colors[c_idx], 2, 8)
 	cv2.imshow(window_name, image)
 	cv2.setWindowTitle(window_name, window_name + ' Current Class : ' + current_class)
 	return image
 
 
 def drawBoundingBox(action, x, y, flags, *userdata):
-	labels = userdata[0][0]
-	image_path = userdata[0][1]
-	current_class = userdata[0][2]
-	class_color = userdata[0][3]
+	image_path = userdata[0][0]
+	labels = userdata[0][1]
+	classes = userdata[0][2]
+	classes_colors = userdata[0][3]
+	current_class = userdata[0][4]
+	class_color = userdata[0][5]
 	global top_left, bottom_right, mouse_down
 	if action == cv2.EVENT_LBUTTONDOWN:
 		top_left = (x, y)
@@ -188,24 +191,24 @@ def drawBoundingBox(action, x, y, flags, *userdata):
 		bottom_right = (bottom_right_x, bottom_right_y)
 		if top_left[0] != bottom_right[0] or top_left[1] != bottom_right[1]:
 			labels[current_class].add(image_path, [top_left[0], top_left[1], bottom_right[0], bottom_right[1]])
-			open_image(image_path, labels, current_class, class_color)
+			open_image(image_path, labels, classes, classes_colors, current_class, class_color)
 			save_tags(image_path, labels)
 	elif action == cv2.EVENT_LBUTTONDBLCLK:
 		labels[current_class].remove(image_path, x, y)
-		open_image(image_path, labels, current_class, class_color)
+		open_image(image_path, labels, classes, classes_colors, current_class, class_color)
 		save_tags(image_path, labels)
 	elif action == cv2.EVENT_MOUSEMOVE and mouse_down:
 		bottom_right = (x, y)
-		image = open_image(image_path, labels, current_class, class_color)
-		cv2.rectangle(image, top_left, bottom_right, class_color, 3, 8)
+		image = open_image(image_path, labels, classes, classes_colors, current_class, class_color)
+		cv2.rectangle(image, top_left, bottom_right, class_color, 2, 8)
 		cv2.imshow(window_name, image)
 
 
-def tag_image(image_path, labels, current_class, class_color):
+def tag_image(image_path, labels, classes, classes_colors, current_class, current_class_color):
 	k = 0
 	while k not in [113, 97, 100, 32, 13]:
-		open_image(image_path, labels, current_class, class_color)
-		cv2.setMouseCallback(window_name, drawBoundingBox, (labels, image_path, current_class, class_color))
+		open_image(image_path, labels, classes, classes_colors, current_class, current_class_color)
+		cv2.setMouseCallback(window_name, drawBoundingBox, (image_path, labels, classes, classes_colors, current_class, current_class_color))
 		k = cv2.waitKey(0)
 		if k == 99:
 			labels[current_class].clear(image_path)
@@ -232,7 +235,7 @@ def tag_folder(folder_path, classes, max_height=950, max_width=1750):
 	image_idx = min_idx_to_show
 	print('Current Class : {}'.format(current_class))
 	while True:
-		q = tag_image(image_paths[image_idx], labels, current_class, classes_colors[current_class_idx])
+		q = tag_image(image_paths[image_idx], labels, classes, classes_colors, current_class, classes_colors[current_class_idx])
 		if q == 100:
 			image_idx += 1
 		elif q == 97:
