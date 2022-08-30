@@ -1,10 +1,10 @@
 # DetectionTagger
 
-Detection Tagger is a simple tagging tool, especially for small number of classes.
+Detection Tagger is a simple tagging tool, especially for a small number of classes.
 
 ![This is an image](DetectionTagger.png)
 
-The bounding boxes are automatically save (/load) to (/from) json files.
+The bounding boxes are automatically saved (/load) to (/from) json files.
 
 Given an image and class, it enables:
   1. Adding new bounding box by dragging the mouse when pressing the left key.
